@@ -22,10 +22,19 @@ let getLatest = function(req, res, next) {
     Post.find({
             isArchived: false
         })
-        .sort({
-            createdOn: 'desc'
-        })
         .limit(11)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
         .exec(function(err, posts) {
             if (err) {
                 next(err);
@@ -35,6 +44,101 @@ let getLatest = function(req, res, next) {
             res.json(posts);
         });
 };
+
+let getLatestCommented = function(req, res, next) {
+    Post.find({
+            isArchived: false
+        })
+        .limit(7)
+        .sort({
+            lastCommentedOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.status(200);
+            res.json(posts);
+        });
+};
+
+let getLatestArchived = function(req, res, next) {
+    Post.find({
+            isArchived: true
+        })
+        .limit(7)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.status(200);
+            res.json(posts);
+        });
+};
+
+let getLatestSeven = function(req, res, next) {
+    Post.find({
+            isArchived: false
+        })
+        .limit(7)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.status(200);
+            res.json(posts);
+        });
+};
+
+let getBySubCategory = function(req, res, next) {
+    Post.find({
+            isArchived: false,
+            subCategory: req.params.subcategory
+        })
+        .limit(11)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.status(200);
+            res.json(posts);
+        });
+};
+
 
 let getAll = function(req, res, next) {
     // let requestChars = {
@@ -92,7 +196,7 @@ let getAll = function(req, res, next) {
 let getById = function(req, res, next) {
     Post.find({
         "_id": req.params.id,
-        "isDeleted": false
+        "isArchived": false
     }, function(err, post) {
         if (err) {
             let error = {
@@ -103,7 +207,7 @@ let getById = function(req, res, next) {
             return;
         } else if (!post[0]) {
             let error = {
-                message: 'There is no user with the given id.',
+                message: 'There is no post with the given id.',
                 status: 400
             };
             next(error);
@@ -294,7 +398,11 @@ let controller = {
     createNew,
     getCount,
     getLatest,
-    fillDb
+    fillDb,
+    getLatestCommented,
+    getLatestSeven,
+    getLatestArchived,
+    getBySubCategory
 };
 
 module.exports = controller;
