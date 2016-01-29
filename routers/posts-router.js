@@ -1,29 +1,17 @@
 'use strict';
 
 let express = require('express'),
-    passport = require('passport'),
     postsController = require('../controllers/posts-controller');
-
-require('../authentication-config');
 
 // Defining producers router
 let router = express.Router();
 
 router.get('/', postsController.getAll)
+    .get('/latest', postsController.getLatest)
     .get('/count', postsController.getCount)
+    //.get('/filldb', postsController.fillDb)
     .get('/:id', postsController.getById)
-    .post('/', passport.authenticate('bearer', {
-            session: false
-        }),
-        postsController.createNew)
-    .delete('/:id', passport.authenticate('bearer', {
-            session: false
-        }),
-        postsController.deletePost)
-    .put('/:id', passport.authenticate('bearer', {
-            session: false
-        }),
-        postsController.edit);
+    .post('/', postsController.createNew);
 
 module.exports = function(app) {
     app.use('/api/posts', router);
