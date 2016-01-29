@@ -1,0 +1,35 @@
+{
+  "name": "TheStyle",
+  "version": "0.0.1",
+  "description": "The Style node.js server. Stylish blog.",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/veselints/TheStyleServer.git"
+  },
+  "keywords": [
+    "Style",
+    "node.js",
+    "Bugarian",
+    "Blog"
+  ],
+  "author": "veselints",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/veselints/TheStyleServer/issues"
+  },
+  "homepage": "https://github.com/veselints/TheStyleServer",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3",
+    "mongoose": "^4.3.4",
+    "mongoose-double": "0.0.1",
+    "passport": "^0.3.2",
+    "passport-http-bearer": "^1.0.1",
+    "rand-token": "^0.2.1"
+  }
+}
