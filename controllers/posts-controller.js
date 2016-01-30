@@ -19,8 +19,56 @@ let getCount = function(isArch, next) {
     });
 };
 
+// Get the most info queries
 let getByquery = function(req, res, next) {
-    // Implement query functionality!!!!!!!!!
+    let currentQuery = req.params.query;
+    let currentPage = req.query.page - 1;
+
+    var query = Post.find({
+        isArchived: false,
+        
+    })
+    .or([{"title": {
+            "$regex": currentQuery,
+            "$options": "i"
+        }},
+        {"category": {
+            "$regex": currentQuery,
+            "$options": "i"
+        }},
+        {"subCategory": {
+            "$regex": currentQuery,
+            "$options": "i"
+        }}]);
+
+    query.limit(7)
+        .skip(7 * currentPage)
+        .sort({
+            lastCommentedOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+            query.count(false, function(count) {
+                res.status(200);
+                res.json({
+                    count: count,
+                    posts: posts
+                });
+            });
+        });
 };
 
 let getCommentedFull = function(req, res, next) {
@@ -93,7 +141,7 @@ let getArchivedFull = function(req, res, next) {
 
 let getLatest = function(req, res, next) {
     let currentPage = req.query.page - 1;
-    
+
     Post.find({
             isArchived: false
         })
@@ -116,11 +164,51 @@ let getLatest = function(req, res, next) {
                 next(err);
                 return;
             }
-            res.status(200);
-            res.json(posts);
+            getCount(true, function(count) {
+                res.status(200);
+                res.json({
+                    count: count,
+                    posts: posts
+                });
+            });
         });
 };
 
+let getBySubCategory = function(req, res, next) {
+    Post.find({
+            isArchived: false,
+            subCategory: req.params.subcategory
+        })
+        .limit(7)
+        .skip(7 * currentPage)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            getCount(true, function(count) {
+                res.status(200);
+                res.json({
+                    count: count,
+                    posts: posts
+                });
+            });
+        });
+};
+
+// Get the least info queries
 let getLatestCommented = function(req, res, next) {
     Post.find({
             isArchived: false
@@ -187,47 +275,7 @@ let getLatestSeven = function(req, res, next) {
         });
 };
 
-let getBySubCategory = function(req, res, next) {
-    Post.find({
-            isArchived: false,
-            subCategory: req.params.subcategory
-        })
-        .limit(11)
-        .sort({
-            createdOn: -1
-        })
-        .select({
-            title: 1,
-            category: 1,
-            _id: 1,
-            createdOn: 1,
-            authorName: 1,
-            // picture: 1,
-            text: 1
-        })
-        .exec(function(err, posts) {
-            if (err) {
-                next(err);
-                return;
-            }
-            res.status(200);
-            res.json(posts);
-        });
-};
-
-
 let getAll = function(req, res, next) {
-    // let requestChars = {
-    //     name: '',
-    //     userId: ''
-    // };
-    // if (req.query.name) {
-    //     requestChars.name = req.query.name;
-    // }
-    // if (req.query.userId) {
-    //     requestChars.userId = req.query.userId;
-    // }
-
     Post.find({}, function(err, posts) {
         if (err) {
             let error = {
@@ -241,31 +289,6 @@ let getAll = function(req, res, next) {
         res.status(200);
         res.json(posts);
     });
-
-
-    // Post.find({
-    //     "name": {
-    //         "$regex": requestChars.name,
-    //         "$options": "i"
-    //     },
-    //     "description": {
-    //         "$regex": requestChars.userId,
-    //         "$options": "i"
-    //     },
-    //     "isDeleted": false
-    // }, 'name type logo', function(err, posts) {
-    //     if (err) {
-    //         let error = {
-    //             message: err.message,
-    //             status: 400
-    //         };
-    //         next(error);
-    //         return;
-    //     }
-
-    //     res.status(200);
-    //     res.json(posts);
-    // });
 };
 
 
