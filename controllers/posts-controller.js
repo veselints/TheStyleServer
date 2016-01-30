@@ -6,16 +6,82 @@ let mongoose = require('mongoose'),
 require('../models/post-model');
 let Post = mongoose.model('Post');
 
-let getCount = function(req, res, next) {
-    Post.count({}, function(err, count) {
+let getCount = function(next, isArch) {
+    Post.count({
+        isArchived: isArch
+    }, function(err, count) {
         if (err) {
             next(err);
             return;
         }
 
-        res.status(200);
-        res.json(count);
-    })
+        return count;
+    });
+};
+
+let getByquery = function(req, res, next) {
+    // Implement query functionality!!!!!!!!!
+};
+
+let getCommentedFull = function(req, res, next) {
+    Post.find({
+            isArchived: false
+        })
+        .limit(11)
+        .sort({
+            lastCommentedOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            var count = getCount(next, false);
+            res.status(200);
+            res.json({
+                count: count,
+                posts: posts
+            });
+        });
+};
+
+let getArchivedFull = function(req, res, next) {
+    Post.find({
+            isArchived: true
+        })
+        .limit(11)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.status(200);
+            res.json({
+                posts:posts,
+                number: number
+            });
+        });
 };
 
 let getLatest = function(req, res, next) {
@@ -402,7 +468,10 @@ let controller = {
     getLatestCommented,
     getLatestSeven,
     getLatestArchived,
-    getBySubCategory
+    getBySubCategory,
+    getByquery,
+    getArchivedFull,
+    getCommentedFull
 };
 
 module.exports = controller;
