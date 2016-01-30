@@ -6,7 +6,7 @@ let mongoose = require('mongoose'),
 require('../models/post-model');
 let Post = mongoose.model('Post');
 
-let getCount = function(next, isArch) {
+let getCount = function(isArch, next) {
     Post.count({
         isArchived: isArch
     }, function(err, count) {
@@ -15,7 +15,7 @@ let getCount = function(next, isArch) {
             return;
         }
 
-        return count;
+        return next(count);
     });
 };
 
@@ -45,11 +45,12 @@ let getCommentedFull = function(req, res, next) {
                 next(err);
                 return;
             }
-            var count = getCount(next, false);
-            res.status(200);
-            res.json({
-                count: count,
-                posts: posts
+            getCount(false, function(count) {
+                res.status(200);
+                res.json({
+                    count: count,
+                    posts: posts
+                });
             });
         });
 };
@@ -76,10 +77,12 @@ let getArchivedFull = function(req, res, next) {
                 next(err);
                 return;
             }
-            res.status(200);
-            res.json({
-                posts:posts,
-                number: number
+            getCount(true, function(count) {
+                res.status(200);
+                res.json({
+                    count: count,
+                    posts: posts
+                });
             });
         });
 };
