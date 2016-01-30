@@ -61,7 +61,11 @@ let getByquery = function(req, res, next) {
                 return;
             }
 
-            query.count(function(count) {
+            query.count(function(err, count) {
+                if (err) {
+                    next(err);
+                    return;
+                }
                 res.status(200);
                 res.json({
                     count: count,
