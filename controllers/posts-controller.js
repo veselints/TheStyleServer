@@ -61,7 +61,7 @@ let getByquery = function(req, res, next) {
                 return;
             }
 
-            query.count(false, function(count) {
+            query.count(function(count) {
                 res.status(200);
                 res.json({
                     count: count,
