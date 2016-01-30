@@ -24,9 +24,8 @@ let getByquery = function(req, res, next) {
     let currentQuery = req.params.query;
     let currentPage = req.query.page - 1;
 
-    var query = Post.find({
+    Post.find({
             isArchived: false,
-
         })
         .or([{
             "title": {
@@ -43,41 +42,58 @@ let getByquery = function(req, res, next) {
                 "$regex": currentQuery,
                 "$options": "i"
             }
-        }]);
+        }])
+        .limit(7)
+        .skip(7 * currentPage)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            category: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1,
+            text: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                next(err);
+                return;
+            }
 
-    query.count(function(err, count) {
-        if (err) {
-            next(err);
-            return;
-        }
-
-        query.limit(7)
-            .skip(7 * currentPage)
-            .sort({
-                createdOn: -1
-            })
-            .select({
-                title: 1,
-                category: 1,
-                _id: 1,
-                createdOn: 1,
-                authorName: 1,
-                // picture: 1,
-                text: 1
-            })
-            .exec(function(err, posts) {
-                if (err) {
-                    next(err);
-                    return;
-                }
-                res.status(200);
-                res.json({
-                    count: count,
-                    posts: posts
+            Post.count({
+                    isArchived: false,
+                })
+                .or([{
+                    "title": {
+                        "$regex": currentQuery,
+                        "$options": "i"
+                    }
+                }, {
+                    "category": {
+                        "$regex": currentQuery,
+                        "$options": "i"
+                    }
+                }, {
+                    "subCategory": {
+                        "$regex": currentQuery,
+                        "$options": "i"
+                    }
+                }])
+                .exec(function(err, count) {
+                    if (err) {
+                        next(err);
+                        return;
+                    }
+                    res.status(200);
+                    res.json({
+                        count: count,
+                        posts: posts
+                    });
                 });
-
-            });
-    });
+        });
 };
 
 let getCommentedFull = function(req, res, next) {
