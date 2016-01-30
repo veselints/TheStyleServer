@@ -24,10 +24,12 @@ let getByquery = function(req, res, next) {
 };
 
 let getCommentedFull = function(req, res, next) {
+    let currentPage = req.query.page - 1;
     Post.find({
             isArchived: false
         })
-        .limit(11)
+        .limit(7)
+        .skip(7 * currentPage)
         .sort({
             lastCommentedOn: -1
         })
@@ -56,10 +58,12 @@ let getCommentedFull = function(req, res, next) {
 };
 
 let getArchivedFull = function(req, res, next) {
+    let currentPage = req.query.page - 1;
     Post.find({
             isArchived: true
         })
-        .limit(11)
+        .limit(7)
+        .skip(7 * currentPage)
         .sort({
             createdOn: -1
         })
@@ -88,10 +92,13 @@ let getArchivedFull = function(req, res, next) {
 };
 
 let getLatest = function(req, res, next) {
+    let currentPage = req.query.page - 1;
+    
     Post.find({
             isArchived: false
         })
         .limit(11)
+        .skip(11 * currentPage)
         .sort({
             createdOn: -1
         })
