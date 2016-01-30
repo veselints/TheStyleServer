@@ -13,7 +13,7 @@ router.get('/', postsController.getAll)
     .get('/latestarchived', postsController.getLatestArchived)
     .get('/count', postsController.getCount)
     .get('/bysubcategory/:subcategory', postsController.getBySubCategory)
-    //.get('/filldb', postsController.fillDb)
+    .get('/filldb', postsController.fillDb)
     .get('/:id', postsController.getById)
     .post('/', postsController.createNew);
 
