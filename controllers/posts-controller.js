@@ -22,7 +22,8 @@ let getCount = function(isArch, next) {
 // Get the most info queries
 let getByquery = function(req, res, next) {
     let currentQuery = req.params.query;
-    let currentPage = req.query.page - 1;
+    let currentPage = req.query.page || 1;
+    currentPage -= 1;
 
     Post.find({
             isArchived: false,
@@ -97,7 +98,9 @@ let getByquery = function(req, res, next) {
 };
 
 let getCommentedFull = function(req, res, next) {
-    let currentPage = req.query.page - 1;
+    let currentPage = req.query.page || 1;
+    currentPage -= 1;
+    
     Post.find({
             isArchived: false
         })
@@ -131,7 +134,9 @@ let getCommentedFull = function(req, res, next) {
 };
 
 let getArchivedFull = function(req, res, next) {
-    let currentPage = req.query.page - 1;
+    let currentPage = req.query.page || 1;
+    currentPage -= 1;
+
     Post.find({
             isArchived: true
         })
@@ -165,7 +170,8 @@ let getArchivedFull = function(req, res, next) {
 };
 
 let getLatest = function(req, res, next) {
-    let currentPage = req.query.page - 1;
+    let currentPage = req.query.page || 1;
+    currentPage -= 1;
 
     Post.find({
             isArchived: false
@@ -200,6 +206,9 @@ let getLatest = function(req, res, next) {
 };
 
 let getBySubCategory = function(req, res, next) {
+    let currentPage = req.query.page || 1;
+    currentPage -= 1;
+
     Post.find({
             isArchived: false,
             subCategory: req.params.subcategory
@@ -413,55 +422,6 @@ let fillDb = function(req, res, next) {
     res.json(dbPost);
 };
 
-// let deletePost = function(req, res, next) {
-//     Post.findOne({
-//         "_id": req.params.id,
-//         "isDeleted": false
-//     }, function(err, post) {
-//         if (err) {
-//             let error = {
-//                 message: err.message,
-//                 status: 400
-//             };
-//             next(error);
-//             return;
-//         } else if (!post) {
-//             let error = {
-//                 message: 'There is no producer with the given id.',
-//                 status: 400
-//             };
-//             next(error);
-//             return;
-//         }
-
-//         // let userId = req.user._id;
-//         // if (userId !== producer.userId) {
-//         //     let error = {
-//         //         message: 'You are not authorized to delete this entry.',
-//         //         status: 401
-//         //     };
-//         //     next(error);
-//         //     return;
-//         // }
-
-//         post.isDeleted = true;
-//         post.save(function(err) {
-//             if (err) {
-//                 let error = {
-//                     message: err.message,
-//                     status: 400
-//                 };
-//                 next(error);
-//                 return;
-//             } else {
-//                 res.status(200);
-//                 res.json({
-//                     message: 'Post deleted.'
-//                 });
-//             }
-//         });
-//     });
-// };
 
 // let edit = function(req, res, next) {
 //     Post.findOne({
