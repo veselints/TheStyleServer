@@ -47,17 +47,18 @@ let postSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    lastCommentedOn: {
-        type: Date,
+    commented: {
+        type: Boolean,
         required: true
+    },
+    lastCommentedOn: {
+        type: Date
     },
 
     isArchived: {
         type: Boolean,
         required: true
     },
-
-
     comments: [{
       parentId: {
         type: String

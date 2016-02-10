@@ -6,6 +6,115 @@ let mongoose = require('mongoose'),
 require('../models/post-model');
 let Post = mongoose.model('Post');
 
+let recentFour = [];
+let popularFour = [];
+// let randomFour = [];
+let latestCommentedSeven = [];
+let latestPostedSeven = [];
+let latestArchiveddSeven = [];
+
+let refreshLocalCache = function() {
+    Post.find({
+            isArchived: false
+        })
+        .select({
+            title: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1
+        })
+        .sort({
+            createdOn: -1
+        })
+        .limit(4)
+        .exec(function(err, posts) {
+            if (err) {
+                return;
+            }
+            recentFour = posts;
+        });
+
+    Post.find({
+            isArchived: false
+        })
+        .select({
+            title: 1,
+            _id: 1,
+            createdOn: 1,
+            authorName: 1,
+            // picture: 1
+        })
+        .sort({
+            numberOfVisits: -1
+        })
+        .limit(4)
+        .exec(function(err, posts) {
+            if (err) {
+                return;
+            }
+            popularFour = posts;
+        });
+
+    Post.find({
+            isArchived: false,
+            commented: true
+        })
+        .limit(7)
+        .sort({
+            lastCommentedOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                return;
+            }
+            latestCommentedSeven = posts;
+        });
+
+    Post.find({
+            isArchived: true
+        })
+        .limit(7)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                return;
+            }
+            latestArchiveddSeven = posts;
+        });
+
+    Post.find({
+            isArchived: false
+        })
+        .limit(7)
+        .sort({
+            createdOn: -1
+        })
+        .select({
+            title: 1,
+            _id: 1
+        })
+        .exec(function(err, posts) {
+            if (err) {
+                return;
+            }
+            latestPostedSeven = posts;
+        });
+
+};
+
+setInterval(refreshLocalCache, 3600000);
+
 let getCount = function(isArch, next) {
     Post.count({
         isArchived: isArch
@@ -19,14 +128,14 @@ let getCount = function(isArch, next) {
     });
 };
 
-// Get the most info queries
+// Get posts based on search query. Has paging implemented
 let getByquery = function(req, res, next) {
     let currentQuery = req.params.query;
     let currentPage = req.query.page || 1;
     currentPage -= 1;
 
     Post.find({
-            isArchived: false,
+            isArchived: false
         })
         .or([{
             "title": {
@@ -97,12 +206,14 @@ let getByquery = function(req, res, next) {
         });
 };
 
+// Gets all commented posts in reverse order of comments. Has paging implemented
 let getCommentedFull = function(req, res, next) {
     let currentPage = req.query.page || 1;
     currentPage -= 1;
-    
+
     Post.find({
-            isArchived: false
+            isArchived: false,
+            commented: true
         })
         .limit(7)
         .skip(7 * currentPage)
@@ -133,6 +244,7 @@ let getCommentedFull = function(req, res, next) {
         });
 };
 
+// Gets all archived posts in reverse order of their vreation. Has paging implemented
 let getArchivedFull = function(req, res, next) {
     let currentPage = req.query.page || 1;
     currentPage -= 1;
@@ -169,6 +281,7 @@ let getArchivedFull = function(req, res, next) {
         });
 };
 
+// Home page - gets all posts in reverse order of their creation. Has paging implemented
 let getLatest = function(req, res, next) {
     let currentPage = req.query.page || 1;
     currentPage -= 1;
@@ -205,13 +318,15 @@ let getLatest = function(req, res, next) {
         });
 };
 
+// Gets all posts from a given subcategory in reverse order of their creation. Has paging implemented
 let getBySubCategory = function(req, res, next) {
     let currentPage = req.query.page || 1;
+    let subcat = req.params.subcategory;
     currentPage -= 1;
 
     Post.find({
             isArchived: false,
-            subCategory: req.params.subcategory
+            subCategory: subcat
         })
         .limit(7)
         .skip(7 * currentPage)
@@ -242,52 +357,83 @@ let getBySubCategory = function(req, res, next) {
         });
 };
 
-// Get the least info queries
-let getLatestCommented = function(req, res, next) {
-    Post.find({
-            isArchived: false
-        })
-        .limit(7)
-        .sort({
-            lastCommentedOn: -1
-        })
-        .select({
-            title: 1,
-            _id: 1
-        })
-        .exec(function(err, posts) {
-            if (err) {
-                next(err);
-                return;
-            }
-            res.status(200);
-            res.json(posts);
-        });
-};
+// Get the least seven commented posts
+// let getLatestCommented = function(req, res, next) {
+//     Post.find({
+//             isArchived: false,
+//             commented: true
+//         })
+//         .limit(7)
+//         .sort({
+//             lastCommentedOn: -1
+//         })
+//         .select({
+//             title: 1,
+//             _id: 1
+//         })
+//         .exec(function(err, posts) {
+//             if (err) {
+//                 next(err);
+//                 return;
+//             }
+//             res.status(200);
+//             res.json(posts);
+//         });
+// };
 
-let getLatestArchived = function(req, res, next) {
-    Post.find({
-            isArchived: true
-        })
-        .limit(7)
-        .sort({
-            createdOn: -1
-        })
-        .select({
-            title: 1,
-            _id: 1
-        })
-        .exec(function(err, posts) {
-            if (err) {
-                next(err);
-                return;
-            }
-            res.status(200);
-            res.json(posts);
-        });
-};
+// Get the least seven archived posts
+// let getLatestArchived = function(req, res, next) {
+//     Post.find({
+//             isArchived: true
+//         })
+//         .limit(7)
+//         .sort({
+//             createdOn: -1
+//         })
+//         .select({
+//             title: 1,
+//             _id: 1
+//         })
+//         .exec(function(err, posts) {
+//             if (err) {
+//                 next(err);
+//                 return;
+//             }
+//             res.status(200);
+//             res.json(posts);
+//         });
+// };
+
+// Get the least seven created posts
+// let getLatestSeven = function(req, res, next) {
+//     Post.find({
+//             isArchived: false
+//         })
+//         .limit(7)
+//         .sort({
+//             createdOn: -1
+//         })
+//         .select({
+//             title: 1,
+//             _id: 1
+//         })
+//         .exec(function(err, posts) {
+//             if (err) {
+//                 next(err);
+//                 return;
+//             }
+//             res.status(200);
+//             res.json(posts);
+//         });
+// };
 
 let getLatestSeven = function(req, res, next) {
+    res.status(200);
+    res.json({
+        commented: latestCommentedSeven,
+        posted: latestPostedSeven,
+        archived: latestArchiveddSeven
+    });
     Post.find({
             isArchived: false
         })
@@ -309,6 +455,7 @@ let getLatestSeven = function(req, res, next) {
         });
 };
 
+// Gets all posts
 let getAll = function(req, res, next) {
     Post.find({}, function(err, posts) {
         if (err) {
@@ -325,11 +472,10 @@ let getAll = function(req, res, next) {
     });
 };
 
-
+// Gets post by id
 let getById = function(req, res, next) {
     Post.find({
-        "_id": req.params.id,
-        "isArchived": false
+        "_id": req.params.id
     }, function(err, post) {
         if (err) {
             let error = {
@@ -347,15 +493,32 @@ let getById = function(req, res, next) {
             return;
         }
 
-        res.status(200);
-        res.json(post[0]);
+        post[0].numberOfVisits += 1;
+        post[0].save(function(err) {
+            if (err) {
+                let error = {
+                    message: err.message,
+                    status: 400
+                };
+                next(error);
+                return;
+            } else {
+                res.status(200);
+                res.json({
+                    post: post[0],
+                    recent: recentFour,
+                    popular: popularFour
+                });
+            }
+        });
     });
 };
 
+// Creates new post
 let createNew = function(req, res, next) {
     var dbPost = new Post(req.body);
-
-    dbPost.isDeleted = false;
+    dbPost.commented = false;
+    dbPost.isArchived = false;
     // var imageBufer = new Buffer(req.body.logo);
     // dbProducer.logo = imageBufer;
     // var imgPath = './img/logo.png';
@@ -377,6 +540,7 @@ let createNew = function(req, res, next) {
     });
 };
 
+// Fills the db with sample data
 let fillDb = function(req, res, next) {
 
     for (let i = 0; i < 20; i++) {
