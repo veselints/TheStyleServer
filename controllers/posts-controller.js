@@ -113,7 +113,7 @@ let refreshLocalCache = function() {
 
 };
 
-setInterval(refreshLocalCache, 3600000);
+setInterval(refreshLocalCache, 300000);
 
 let getTotalCount = function(req, res, next) {
     Post.count({}, function(err, count) {
