@@ -115,6 +115,20 @@ let refreshLocalCache = function() {
 
 setInterval(refreshLocalCache, 3600000);
 
+let getTotalCount = function(req, res, next) {
+    Post.count({}, function(err, count) {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        res.status(200);
+        res.json({
+            count: count
+        });
+    });
+};
+
 let getCount = function(isArch, next) {
     Post.count({
         isArchived: isArch
@@ -453,7 +467,7 @@ let fillDb = function(req, res, next) {
 
     for (let i = 0; i < len; i++) {
         let newPost = new Post(req.body[i]);
-        
+
         // var pictureNumber = (i + 1).toString();
         // var imgPath = './img/' + pictureNumber + '.png';
         // var bitmap = fs.readFileSync(imgPath);
@@ -514,20 +528,36 @@ let fillDb = function(req, res, next) {
     // res.json(dbPost);
 };
 
+let emptyDb = function(req, res, next) {
+    Post.remove({}, function(err) {
+        if (err) {
+            let error = {
+                message: err.message,
+                status: 400
+            };
+            next(err);
+            return;
+        } else {
+            res.status(201);
+            res.json({});
+        }
+    });
+};
+
 let controller = {
     getAll,
     getById,
     createNew,
     getCount,
+    getTotalCount,
     getLatest,
     fillDb,
-    getLatestCommented,
     getLatestSeven,
-    getLatestArchived,
     getBySubCategory,
     getByquery,
     getArchivedFull,
-    getCommentedFull
+    getCommentedFull,
+    emptyDb
 };
 
 module.exports = controller;

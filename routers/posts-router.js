@@ -14,12 +14,13 @@ router.get('/', postsController.getAll)
     //.get('/latestseven', postsController.getLatestSeven)
     //.get('/latestarchived', postsController.getLatestArchived)
     .get('/latestseven', postsController.getLatestSeven)
-    .get('/count', postsController.getCount)
+    .get('/count', postsController.getTotalCount)
     .get('/bysubcategory/:subcategory', postsController.getBySubCategory)
-    .get('/filldb', postsController.fillDb)
+    .post('/filldb', postsController.fillDb)
     .get('/query/:query', postsController.getByquery)
     .get('/:id', postsController.getById)
-    .post('/', postsController.createNew);
+    .post('/', postsController.createNew)
+    .delete('/', postsController.emptyDb);
 
 module.exports = function(app) {
     app.use('/api/posts', router);

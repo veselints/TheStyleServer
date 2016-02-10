@@ -6,7 +6,7 @@ let express = require('express'),
     mongoose = require('mongoose');
 
 // Connecting to local mongodb
-/// let connectionString = 'mongodb://127.0.0.1:27017/thestyle';
+// let connectionString = 'mongodb://127.0.0.1:27017/thestyle';
 let connectionString = process.env.MONGOLAB_URI;
 mongoose.connect(connectionString);
 
