@@ -214,7 +214,9 @@ let getByquery = function(req, res, next) {
                     res.status(200);
                     res.json({
                         count: count,
-                        posts: posts
+                        posts: posts,
+                        commented: latestCommentedSeven,
+                        posted: latestPostedSeven
                     });
                 });
         });
@@ -365,7 +367,9 @@ let getBySubCategory = function(req, res, next) {
                 res.status(200);
                 res.json({
                     count: count,
-                    posts: posts
+                    posts: posts,
+                    commented: latestCommentedSeven,
+                    posted: latestPostedSeven
                 });
             });
         });
