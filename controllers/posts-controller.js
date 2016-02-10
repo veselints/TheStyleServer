@@ -22,7 +22,7 @@ let refreshLocalCache = function() {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1
+            picture: 1
         })
         .sort({
             createdOn: -1
@@ -43,7 +43,7 @@ let refreshLocalCache = function() {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1
+            picture: 1
         })
         .sort({
             numberOfVisits: -1
@@ -178,7 +178,7 @@ let getByquery = function(req, res, next) {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1,
+            picture: 1,
             text: 1
         })
         .exec(function(err, posts) {
@@ -240,7 +240,7 @@ let getCommentedFull = function(req, res, next) {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1,
+            picture: 1,
             text: 1
         })
         .exec(function(err, posts) {
@@ -277,7 +277,7 @@ let getArchivedFull = function(req, res, next) {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1,
+            picture: 1,
             text: 1
         })
         .exec(function(err, posts) {
@@ -314,7 +314,7 @@ let getLatest = function(req, res, next) {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1,
+            picture: 1,
             text: 1
         })
         .exec(function(err, posts) {
@@ -353,7 +353,7 @@ let getBySubCategory = function(req, res, next) {
             _id: 1,
             createdOn: 1,
             authorName: 1,
-            // picture: 1,
+            picture: 1,
             text: 1
         })
         .exec(function(err, posts) {
