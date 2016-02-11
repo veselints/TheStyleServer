@@ -10,9 +10,6 @@ router.get('/', postsController.getAll)
     .get('/latest', postsController.getLatest)
     .get('/commented', postsController.getCommentedFull)
     .get('/archived', postsController.getArchivedFull)
-    //.get('/latestcommented', postsController.getLatestCommented)
-    //.get('/latestseven', postsController.getLatestSeven)
-    //.get('/latestarchived', postsController.getLatestArchived)
     .get('/latestseven', postsController.getLatestSeven)
     .get('/count', postsController.getTotalCount)
     .get('/bysubcategory/:subcategory', postsController.getBySubCategory)
@@ -20,6 +17,7 @@ router.get('/', postsController.getAll)
     .get('/query/:query', postsController.getByquery)
     .get('/:id', postsController.getById)
     .post('/', postsController.createNew)
+    .post('/:id', postsController.createComment)
     .delete('/', postsController.emptyDb);
 
 module.exports = function(app) {

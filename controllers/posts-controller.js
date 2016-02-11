@@ -324,7 +324,13 @@ let getLatest = function(req, res, next) {
                 next(err);
                 return;
             }
-            getCount(true, function(count) {
+            Post.count({
+                isArchived: false
+            }, function(err, count) {
+                if (err) {
+                    next(err);
+                    return;
+                }
                 res.status(200);
                 res.json({
                     count: count,
@@ -339,6 +345,8 @@ let getBySubCategory = function(req, res, next) {
     let currentPage = req.query.page || 1;
     let subcat = req.params.subcategory;
     currentPage -= 1;
+
+    console.log(currentPage);
 
     Post.find({
             isArchived: false,
@@ -363,7 +371,15 @@ let getBySubCategory = function(req, res, next) {
                 next(err);
                 return;
             }
-            getCount(true, function(count) {
+
+            Post.count({
+                isArchived: false,
+                subCategory: subcat
+            }, function(err, count) {
+                if (err) {
+                    next(err);
+                    return;
+                }
                 res.status(200);
                 res.json({
                     count: count,
@@ -464,6 +480,45 @@ let createNew = function(req, res, next) {
     });
 };
 
+let createComment = function(req, res, next) {
+    let newComment = req.body;
+    if (!newComment) {
+        let e = {
+            message: "Bad request",
+            status: 400
+        };
+        next(e);
+        return;
+    }
+
+    Post.findOne({
+        "_id": req.params.id
+    }, function(err, post) {
+        if (err) {
+            next(err);
+            return;
+        }
+        if (!post) {
+            let error = {
+                message: "Post not found",
+                status: 404
+            };
+            next(error);
+            return;
+        }
+        newComment.createdOn = Date.now();
+        post.comments.push(newComment);
+        post.save(function(error) {
+            if (error) {
+                next(error);
+                return;
+            }
+            res.status(201);
+            res.json();
+        });
+    });
+};
+
 // Fills the db with sample data
 let fillDb = function(req, res, next) {
 
@@ -471,12 +526,6 @@ let fillDb = function(req, res, next) {
 
     for (let i = 0; i < len; i++) {
         let newPost = new Post(req.body[i]);
-
-        // var pictureNumber = (i + 1).toString();
-        // var imgPath = './img/' + pictureNumber + '.png';
-        // var bitmap = fs.readFileSync(imgPath);
-        // var imageBufer = new Buffer(bitmap).toString('base64');
-        // newBird.picture = imageBufer;
 
         newPost.save(function(err) {
             if (err) {
@@ -493,43 +542,6 @@ let fillDb = function(req, res, next) {
     }
 
     res.json({});
-
-    // for (let i = 0; i < 20; i++) {
-    //     let comment = {
-    //         text: "I have commented here, but that is not so cool",
-    //         parentId: null,
-    //         authorName: "Veselin",
-    //         createdOn: Date.now()
-    //     };
-
-    //     var dbPost = new Post();
-    //     dbPost.comments = [comment];
-    //     dbPost.title = "Some post title";
-    //     dbPost.text = " Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-    //     dbPost.category = "sport";
-    //     dbPost.subCategory = "volleyball";
-    //     dbPost.tags = ["sport", "ball", "net"];
-
-    //     dbPost.authorName = "Veselin";
-    //     dbPost.numberOfVisits = 0;
-    //     dbPost.createdOn = Date.now();
-    //     dbPost.lastCommentedOn = Date.now();
-    //     dbPost.isArchived = false;
-
-    //     dbPost.save(function(err) {
-    //         if (err) {
-    //             let error = {
-    //                 message: err,
-    //                 status: 400
-    //             };
-    //             next(error);
-    //             return;
-    //         }
-    //     });
-    // }
-
-    // res.status(201);
-    // res.json(dbPost);
 };
 
 let emptyDb = function(req, res, next) {
@@ -561,7 +573,8 @@ let controller = {
     getByquery,
     getArchivedFull,
     getCommentedFull,
-    emptyDb
+    emptyDb,
+    createComment
 };
 
 module.exports = controller;
